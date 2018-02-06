@@ -25,3 +25,21 @@ Requirements and preferences:
 2) Logic has to be separated from templates. (hardcode is unacceptable)
 3) OOP approach is required.
 4) It will be a plus if you follow SOLID principles.
+
+How to run
+==========
+
+To run the application go to the project directory and use the following command:
+
+```shell
+php main.php
+```
+
+TO-DO
+=====
+1. Separate the validator
+2. Send App arguments via CLI - e.g.: table size, input file
+3. Receive input data right in STDIN
+4. Receive different input formats
+5. Tests
+6. Make Render more configurable - e.g.: output obfuscated HTML, use different templates
