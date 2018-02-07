@@ -43,3 +43,6 @@ TO-DO
 4. Receive different input formats
 5. Tests
 6. Make Render more configurable - e.g.: output obfuscated HTML, use different templates
+
+Phase 2
+=======
