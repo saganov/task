@@ -2,17 +2,40 @@
 
 class Table
 {
-    private $rows;
-    private $cols;
+    private $size;
     private $canvas;
-    private $validAttributes = array('text', 'align', 'valign', 'color', 'bgcolor');
-    public function __construct($rows, $cols = null){
-        if (is_null($cols)){
-            $cols = $rows;
+    public function __construct($size, array $structure){
+        $this->size = $size;
+        $this->canvas = array_fill(0, $this->size, array_fill(0, $this->size, null));
+        foreach ($structure as $item){
+            if (!is_array($item)) throw new Exception("Invalid rectangle description: '$item'");
+            $this->constructRectangle($item);
         }
-        $this->rows = $rows;
-        $this->cols = $cols;
-        $this->canvas = array_fill(0, $rows, array_fill(0, $cols, null));
+    }
+
+    private function constructRectangle($description){
+        if (!is_array($description)) throw new Exception("Invalid rectangle description: '$description'");
+        if (!array_key_exists('cells', $description)) throw new Exception('Invalid rectangle description, mandatory attribute "cells" is missed');
+        $cells = array_map('intval', explode(',', $description['cells']));
+        unset($description['cells']);
+        sort($cells, SORT_NUMERIC);
+        $cellNumberSource = array_shift($cells);     
+        foreach ($description as $attribute => $value){
+            switch ($attribute){
+                case 'text':
+                case 'align':
+                case 'valign':
+                case 'color':
+                case 'bgcolor':
+                    $this->updateCell($cellNumberSource, $attribute, $value);
+                    break;
+                default:
+                    throw new Exception("Unknown table attribute: '{$attribute}'");
+            }
+        }
+        if (count($cells) > 0){
+            $this->mergeCells($cellNumberSource, $cells);
+        }
     }
 
     public function dump(){
@@ -32,15 +55,13 @@ class Table
      *  +---+---+---+
      *
      */
-    public function updateCell($cellNumber, $attribute, $value){
-        if (!in_array($attribute, $this->validAttributes)) throw new Exception("Unknown attribute: '$attribute'");
+    private function updateCell($cellNumber, $attribute, $value){
         list($row, $col) = $this->resolveCellNumberToIndexes($cellNumber);
         $this->canvas[$row][$col][$attribute] = $value;
     }
 
-    public function mergeCells($cellNumberSource, array $cellNumbersDest){
+    private function mergeCells($cellNumberSource, array $cellNumbersDest){
         list($rowSource, $colSource) = $this->resolveCellNumberToIndexes($cellNumberSource);
-        sort($cellNumbersDest);
         $colspan = $rowspan = 1;
         foreach ($cellNumbersDest as $cellNumberDest){
             list($rowDest, $colDest) = $this->resolveCellNumberToIndexes($cellNumberDest);
@@ -67,6 +88,6 @@ class Table
     }
 
     private function resolveCellNumberToIndexes($number){
-        return array((int)(($number - 1) / $this->rows), ($number - 1) % $this->cols);
+        return array((int)(($number - 1) / $this->size), ($number - 1) % $this->size);
     }
 }

@@ -4,42 +4,37 @@ class RenderTableHtml
 {
     private $table;
     public function __construct(Table $table){
-        $this->table = $table;
-    }
-
-    public function show(){
-        $dump = $this->table->dump();
-        $tableHeight = count($dump);
-        $tableWidth  = count($dump[0]);
-        $html = "<style>\n";
-        $html .= "\ttable {table-layout:fixed; width: ". 100*$tableWidth ."px; height: ". 100*$tableHeight ."px;}\n";
-        $html .= "\ttable td {width: ". 10*$tableWidth ."px; height: ". 10*$tableHeight ."px; border: 1px solid #000}\n";
-        $html .= "</style>\n";
-        $html .= "<table>\n";
-        foreach ($this->table->dump() as $row){
-            $html .= "\t<tr>\n\t\t";
+        $dom = new DOMDocument('1.0', 'utf-8');
+        $rootDom = $dom->createElement('table');
+        foreach ($table->dump() as $row){
+            $rowDom = $dom->createElement('row');
             foreach ($row as $cell){
                 if (!is_array($cell)) {
-                    $html .= "<td></td>";
+                    $rowDom->appendChild($dom->createElement('cell'));
                     continue;
                 }
                 if (array_key_exists('hidden', $cell)) continue;
-                $text = '';
-                $html .= "<td";
+                $cellDom = $dom->createElement('cell');
                 foreach ($cell as $attribute => $value){
-                    if ($attribute == 'text') {
-                        $text = $value;
-                    } else if ($attribute == 'color'){
-                        $html .= " style = 'color:#$value'";
-                    } else {
-                        $html .= " $attribute = '$value'";
-                    }
+                    $cellDom->appendChild($dom->createElement($attribute, $value));
                 }
-                $html .= ">$text</td>";
+                $rowDom->appendChild($cellDom); 
             }
-            $html .= "\n\t</tr>\n";
+            $rootDom->appendChild($rowDom);
         }
-        $html .= "</table>";
-        return $html;
+        $dom->appendChild($rootDom);
+        $this->table = $dom;
+    }
+
+    public function dump(){
+        return $this->table->saveXML();
+    }
+
+    public function show($template){
+        $xsl = new DOMDocument;
+        $xsl->loadXML($template);
+        $proc = new XSLTProcessor;
+        $proc->importStyleSheet($xsl);
+        echo $proc->transformToXML($this->table);
     }
 }
