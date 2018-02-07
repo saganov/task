@@ -67,15 +67,6 @@ class Table
     }
 
     private function resolveCellNumberToIndexes($number){
-        $order = 1;
-        for ($row = 0; $row < $this->rows; $row++){
-            for ($col = 0; $col < $this->cols; $col++){
-                if ($number == $order){
-                    return array($row, $col);
-                } else {
-                    $order++;
-                }
-            }
-        }
+        return array((int)(($number - 1) / $this->rows), ($number - 1) % $this->cols);
     }
 }
