@@ -52,3 +52,7 @@ Added template system based on the XSLT
 Phase 3
 =======
 Refactoring to decorators
+
+Phase 4
+=======
+Decrease the class coupling by unlink the classes from knownledge about internal representation of the table
