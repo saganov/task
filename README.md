@@ -32,7 +32,8 @@ How to run
 To run the application go to the project directory and use the following command:
 
 ```shell
-php main.php
+cd <Project Root>
+bin/run
 ```
 
 TO-DO
