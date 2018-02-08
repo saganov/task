@@ -1,16 +1,24 @@
 <?php
 
-class Table
+namespace App;
+
+class TableArray implements Table
 {
     private $size;
+    private $structure;
     private $canvas;
     public function __construct($size, array $structure){
         $this->size = $size;
+        $this->structure = $structure;
+    }
+
+    public function dump(){
         $this->canvas = array_fill(0, $this->size, array_fill(0, $this->size, null));
-        foreach ($structure as $item){
+        foreach ($this->structure as $item){
             if (!is_array($item)) throw new Exception("Invalid rectangle description: '$item'");
             $this->constructRectangle($item);
         }
+        return $this->canvas;
     }
 
     private function constructRectangle($description){
@@ -36,10 +44,6 @@ class Table
         if (count($cells) > 0){
             $this->mergeCells($cellNumberSource, $cells);
         }
-    }
-
-    public function dump(){
-        return $this->canvas;
     }
 
     /*
